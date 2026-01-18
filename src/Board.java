@@ -134,6 +134,34 @@ public class Board extends JPanel implements ActionListener {
         return levelData[row][col] == 0;
     }
     
+    public int wrapX(int x) {
+        int boardPixelWidth = BOARD_WIDTH * BLOCK_SIZE;
+        if (x < 0) {
+            return x + boardPixelWidth;
+        } else if (x >= boardPixelWidth) {
+            return x - boardPixelWidth;
+        }
+        return x;
+    }
+    
+    public int wrapY(int y) {
+        int boardPixelHeight = BOARD_HEIGHT * BLOCK_SIZE;
+        if (y < 0) {
+            return y + boardPixelHeight;
+        } else if (y >= boardPixelHeight) {
+            return y - boardPixelHeight;
+        }
+        return y;
+    }
+    
+    public int getBoardWidth() {
+        return BOARD_WIDTH * BLOCK_SIZE;
+    }
+    
+    public int getBoardHeight() {
+        return BOARD_HEIGHT * BLOCK_SIZE;
+    }
+    
     public void eatPoint(int x, int y) {
         int col = x / BLOCK_SIZE;
         int row = y / BLOCK_SIZE;

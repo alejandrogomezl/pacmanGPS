@@ -38,6 +38,10 @@ public class Ghost {
             case DOWN: newY += 4; break;
         }
         
+        // Apply screen wrapping
+        newX = board.wrapX(newX);
+        newY = board.wrapY(newY);
+        
         // Verificar colisión con paredes
         int edgeOffset = spriteSize - 1;
         if (!board.isWall(newX, newY) && !board.isWall(newX + edgeOffset, newY) &&
