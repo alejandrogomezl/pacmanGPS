@@ -3,6 +3,7 @@ import java.util.Random;
 
 public class Ghost {
     private int x, y;
+    private int startX, startY;
     private Direction direction;
     private Color color;
     private Random random = new Random();
@@ -12,6 +13,8 @@ public class Ghost {
     public Ghost(int x, int y, Color color, Board board) {
         this.x = x;
         this.y = y;
+        this.startX = x;
+        this.startY = y;
         this.color = color;
         this.board = board;
         this.spriteSize = board.getSpriteSize();
@@ -48,5 +51,23 @@ public class Ghost {
             // Cambiar dirección si choca con una pared
             direction = Direction.values()[random.nextInt(4)];
         }
+    }
+    
+    public int getX() {
+        return x;
+    }
+    
+    public int getY() {
+        return y;
+    }
+    
+    public int getSpriteSize() {
+        return spriteSize;
+    }
+    
+    public void reset() {
+        this.x = startX;
+        this.y = startY;
+        this.direction = Direction.values()[random.nextInt(4)];
     }
 }

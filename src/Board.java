@@ -8,6 +8,7 @@ public class Board extends JPanel implements ActionListener {
     private Ghost[] ghosts;
     private int currentLevel = 0;
     private int[][] levelData;
+    private boolean gameOver = false;
     private static final int BLOCK_SIZE = 20;
     private static final int BOARD_WIDTH = 20;
     private static final int BOARD_HEIGHT = 20;
@@ -171,6 +172,10 @@ public class Board extends JPanel implements ActionListener {
         for (Ghost ghost : ghosts) {
             ghost.draw(g);
         }
+        
+        if (gameOver) {
+            drawGameOver(g);
+        }
     }
 
     private void drawBoard(Graphics g) {
@@ -194,21 +199,79 @@ public class Board extends JPanel implements ActionListener {
         g.drawString("Score: " + pacman.getScore(), 10, 410);
         g.drawString("Level: " + (currentLevel + 1), 150, 410);
     }
+    
+    private void drawGameOver(Graphics g) {
+        g.setColor(new Color(0, 0, 0, 180));
+        g.fillRect(0, 0, getWidth(), getHeight());
+        
+        g.setColor(Color.RED);
+        g.setFont(new Font("Arial", Font.BOLD, 48));
+        FontMetrics fm = g.getFontMetrics();
+        String gameOverText = "GAME OVER";
+        int x = (getWidth() - fm.stringWidth(gameOverText)) / 2;
+        int y = getHeight() / 2 - 20;
+        g.drawString(gameOverText, x, y);
+        
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.PLAIN, 20));
+        fm = g.getFontMetrics();
+        String restartText = "Press SPACE to restart";
+        x = (getWidth() - fm.stringWidth(restartText)) / 2;
+        y = getHeight() / 2 + 40;
+        g.drawString(restartText, x, y);
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        pacman.move();
-        for (Ghost ghost : ghosts) {
-            ghost.move();
+        if (!gameOver) {
+            pacman.move();
+            for (Ghost ghost : ghosts) {
+                ghost.move();
+            }
+            checkCollisions();
         }
-        // Aquí puedes agregar colisiones y lógica de puntos
         repaint();
+    }
+    
+    private void checkCollisions() {
+        int pacmanX = pacman.getX();
+        int pacmanY = pacman.getY();
+        int pacmanSize = pacman.getSpriteSize();
+        
+        for (Ghost ghost : ghosts) {
+            int ghostX = ghost.getX();
+            int ghostY = ghost.getY();
+            int ghostSize = ghost.getSpriteSize();
+            
+            // Detectar colisión usando rectángulos
+            if (pacmanX < ghostX + ghostSize &&
+                pacmanX + pacmanSize > ghostX &&
+                pacmanY < ghostY + ghostSize &&
+                pacmanY + pacmanSize > ghostY) {
+                gameOver = true;
+                break;
+            }
+        }
+    }
+    
+    private void restartGame() {
+        gameOver = false;
+        currentLevel = 0;
+        loadLevel(currentLevel);
+        pacman.reset();
+        for (Ghost ghost : ghosts) {
+            ghost.reset();
+        }
     }
 
     private class PacmanKeyAdapter extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
-            pacman.keyPressed(e);
+            if (gameOver && e.getKeyCode() == KeyEvent.VK_SPACE) {
+                restartGame();
+            } else if (!gameOver) {
+                pacman.keyPressed(e);
+            }
         }
     }
 }
