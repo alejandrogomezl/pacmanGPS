@@ -6,20 +6,145 @@ public class Board extends JPanel implements ActionListener {
     private Timer timer;
     private Pacman pacman;
     private Ghost[] ghosts;
-    // Aquí puedes definir el mapa y la lógica de puntos
+    private int currentLevel = 0;
+    private int[][] levelData;
+    private static final int BLOCK_SIZE = 20;
+    private static final int BOARD_WIDTH = 20;
+    private static final int BOARD_HEIGHT = 20;
+    
+    // Códigos para el mapa: 0=pared, 1=punto, 2=camino vacío
+    private static final int[][][] LEVELS = {
+        // Nivel 1 - Diseño simple
+        {
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,0},
+            {0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0},
+            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+            {0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0,1,0},
+            {0,1,1,1,1,0,1,1,1,0,0,1,1,1,0,1,1,1,1,0},
+            {0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,0,0},
+            {0,0,0,0,1,0,1,1,1,1,1,1,1,1,0,1,0,0,0,0},
+            {0,0,0,0,1,0,1,0,0,2,2,0,0,1,0,1,0,0,0,0},
+            {0,1,1,1,1,1,1,0,2,2,2,2,0,1,1,1,1,1,1,0},
+            {0,0,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0},
+            {0,0,0,0,1,0,1,1,1,1,1,1,1,1,0,1,0,0,0,0},
+            {0,0,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0},
+            {0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,0},
+            {0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0},
+            {0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0},
+            {0,0,1,0,1,0,1,0,0,0,0,0,0,1,0,1,0,1,0,0},
+            {0,1,1,1,1,0,1,1,1,0,0,1,1,1,0,1,1,1,1,0},
+            {0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+        },
+        // Nivel 2 - Diseño con más paredes
+        {
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+            {0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0},
+            {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
+            {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
+            {0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0},
+            {0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0},
+            {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
+            {0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0},
+            {0,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,0},
+            {0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0},
+            {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
+            {0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0},
+            {0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0},
+            {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
+            {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
+            {0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0},
+            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+            {0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+        },
+        // Nivel 3 - Diseño complejo
+        {
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,1,1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,1,0},
+            {0,1,0,0,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0},
+            {0,1,0,1,1,0,1,1,1,0,0,1,1,1,0,1,1,0,1,0},
+            {0,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,0},
+            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+            {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
+            {0,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,1,0},
+            {0,1,0,0,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0},
+            {0,1,1,1,1,1,1,0,1,2,2,1,0,1,1,1,1,1,1,0},
+            {0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0},
+            {0,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,1,0},
+            {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
+            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+            {0,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,0},
+            {0,1,0,1,1,0,1,1,1,0,0,1,1,1,0,1,1,0,1,0},
+            {0,1,0,0,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0},
+            {0,1,1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,1,0},
+            {0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+        }
+    };
 
     public Board() {
         setFocusable(true);
         setBackground(Color.BLACK);
-        pacman = new Pacman(180, 300);
+        loadLevel(currentLevel);
+        pacman = new Pacman(180, 300, this);
         ghosts = new Ghost[] {
-            new Ghost(180, 180, Color.RED),
-            new Ghost(60, 60, Color.PINK),
-            new Ghost(300, 60, Color.CYAN)
+            new Ghost(180, 180, Color.RED, this),
+            new Ghost(60, 60, Color.PINK, this),
+            new Ghost(300, 60, Color.CYAN, this)
         };
         timer = new Timer(40, this);
         timer.start();
         addKeyListener(new PacmanKeyAdapter());
+    }
+    
+    private void loadLevel(int level) {
+        levelData = new int[BOARD_HEIGHT][BOARD_WIDTH];
+        for (int i = 0; i < BOARD_HEIGHT; i++) {
+            for (int j = 0; j < BOARD_WIDTH; j++) {
+                levelData[i][j] = LEVELS[level][i][j];
+            }
+        }
+    }
+    
+    public boolean isWall(int x, int y) {
+        int col = x / BLOCK_SIZE;
+        int row = y / BLOCK_SIZE;
+        if (row < 0 || row >= BOARD_HEIGHT || col < 0 || col >= BOARD_WIDTH) {
+            return true;
+        }
+        return levelData[row][col] == 0;
+    }
+    
+    public void eatPoint(int x, int y) {
+        int col = x / BLOCK_SIZE;
+        int row = y / BLOCK_SIZE;
+        if (row >= 0 && row < BOARD_HEIGHT && col >= 0 && col < BOARD_WIDTH) {
+            if (levelData[row][col] == 1) {
+                levelData[row][col] = 2;
+                pacman.addScore(10);
+                checkLevelComplete();
+            }
+        }
+    }
+    
+    private void checkLevelComplete() {
+        for (int i = 0; i < BOARD_HEIGHT; i++) {
+            for (int j = 0; j < BOARD_WIDTH; j++) {
+                if (levelData[i][j] == 1) {
+                    return;
+                }
+            }
+        }
+        // Todos los puntos comidos, avanzar al siguiente nivel
+        currentLevel++;
+        if (currentLevel >= LEVELS.length) {
+            currentLevel = 0; // Reiniciar al primer nivel
+        }
+        loadLevel(currentLevel);
+        pacman.reset(180, 300);
     }
 
     @Override
@@ -33,9 +158,25 @@ public class Board extends JPanel implements ActionListener {
     }
 
     private void drawBoard(Graphics g) {
-        // Aquí puedes dibujar el laberinto y los puntos
+        // Dibujar paredes y puntos
+        for (int i = 0; i < BOARD_HEIGHT; i++) {
+            for (int j = 0; j < BOARD_WIDTH; j++) {
+                if (levelData[i][j] == 0) {
+                    // Dibujar pared
+                    g.setColor(Color.BLUE);
+                    g.fillRect(j * BLOCK_SIZE, i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                } else if (levelData[i][j] == 1) {
+                    // Dibujar punto
+                    g.setColor(Color.WHITE);
+                    g.fillOval(j * BLOCK_SIZE + 7, i * BLOCK_SIZE + 7, 6, 6);
+                }
+            }
+        }
+        
+        // Dibujar información
         g.setColor(Color.YELLOW);
         g.drawString("Score: " + pacman.getScore(), 10, 410);
+        g.drawString("Level: " + (currentLevel + 1), 150, 410);
     }
 
     @Override

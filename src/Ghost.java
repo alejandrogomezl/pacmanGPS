@@ -6,11 +6,13 @@ public class Ghost {
     private Direction direction;
     private Color color;
     private Random random = new Random();
+    private Board board;
 
-    public Ghost(int x, int y, Color color) {
+    public Ghost(int x, int y, Color color, Board board) {
         this.x = x;
         this.y = y;
         this.color = color;
+        this.board = board;
         this.direction = Direction.values()[random.nextInt(4)];
     }
 
@@ -23,12 +25,25 @@ public class Ghost {
         if (random.nextInt(10) == 0) {
             direction = Direction.values()[random.nextInt(4)];
         }
+        
+        int newX = x;
+        int newY = y;
+        
         switch (direction) {
-            case LEFT: x -= 4; break;
-            case RIGHT: x += 4; break;
-            case UP: y -= 4; break;
-            case DOWN: y += 4; break;
+            case LEFT: newX -= 4; break;
+            case RIGHT: newX += 4; break;
+            case UP: newY -= 4; break;
+            case DOWN: newY += 4; break;
         }
-        // Aquí puedes agregar lógica de colisiones con el laberinto
+        
+        // Verificar colisión con paredes
+        if (!board.isWall(newX, newY) && !board.isWall(newX + 19, newY) &&
+            !board.isWall(newX, newY + 19) && !board.isWall(newX + 19, newY + 19)) {
+            x = newX;
+            y = newY;
+        } else {
+            // Cambiar dirección si choca con una pared
+            direction = Direction.values()[random.nextInt(4)];
+        }
     }
 }

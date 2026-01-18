@@ -3,12 +3,17 @@ import java.awt.event.*;
 
 public class Pacman {
     private int x, y;
+    private int startX, startY;
     private Direction direction = Direction.LEFT;
     private int score = 0;
+    private Board board;
 
-    public Pacman(int x, int y) {
+    public Pacman(int x, int y, Board board) {
         this.x = x;
         this.y = y;
+        this.startX = x;
+        this.startY = y;
+        this.board = board;
     }
 
     public void draw(Graphics g) {
@@ -17,13 +22,24 @@ public class Pacman {
     }
 
     public void move() {
+        int newX = x;
+        int newY = y;
+        
         switch (direction) {
-            case LEFT: x -= 4; break;
-            case RIGHT: x += 4; break;
-            case UP: y -= 4; break;
-            case DOWN: y += 4; break;
+            case LEFT: newX -= 4; break;
+            case RIGHT: newX += 4; break;
+            case UP: newY -= 4; break;
+            case DOWN: newY += 4; break;
         }
-        // Aquí puedes agregar lógica para colisiones con el laberinto
+        
+        // Verificar colisión con paredes
+        if (!board.isWall(newX, newY) && !board.isWall(newX + 19, newY) &&
+            !board.isWall(newX, newY + 19) && !board.isWall(newX + 19, newY + 19)) {
+            x = newX;
+            y = newY;
+            // Comer punto
+            board.eatPoint(x + 10, y + 10);
+        }
     }
 
     public void keyPressed(KeyEvent e) {
@@ -37,5 +53,14 @@ public class Pacman {
 
     public int getScore() {
         return score;
+    }
+    
+    public void addScore(int points) {
+        score += points;
+    }
+    
+    public void reset(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 }
