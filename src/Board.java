@@ -11,6 +11,15 @@ public class Board extends JPanel implements ActionListener {
     private static final int BLOCK_SIZE = 20;
     private static final int BOARD_WIDTH = 20;
     private static final int BOARD_HEIGHT = 20;
+    private static final int SPRITE_SIZE = 20;
+    private static final int PACMAN_START_X = 180;
+    private static final int PACMAN_START_Y = 300;
+    private static final int GHOST1_START_X = 180;
+    private static final int GHOST1_START_Y = 180;
+    private static final int GHOST2_START_X = 60;
+    private static final int GHOST2_START_Y = 60;
+    private static final int GHOST3_START_X = 300;
+    private static final int GHOST3_START_Y = 60;
     
     // Códigos para el mapa: 0=pared, 1=punto, 2=camino vacío
     private static final int[][][] LEVELS = {
@@ -89,11 +98,11 @@ public class Board extends JPanel implements ActionListener {
         setFocusable(true);
         setBackground(Color.BLACK);
         loadLevel(currentLevel);
-        pacman = new Pacman(180, 300, this);
+        pacman = new Pacman(PACMAN_START_X, PACMAN_START_Y, this);
         ghosts = new Ghost[] {
-            new Ghost(180, 180, Color.RED, this),
-            new Ghost(60, 60, Color.PINK, this),
-            new Ghost(300, 60, Color.CYAN, this)
+            new Ghost(GHOST1_START_X, GHOST1_START_Y, Color.RED, this),
+            new Ghost(GHOST2_START_X, GHOST2_START_Y, Color.PINK, this),
+            new Ghost(GHOST3_START_X, GHOST3_START_Y, Color.CYAN, this)
         };
         timer = new Timer(40, this);
         timer.start();
@@ -101,12 +110,19 @@ public class Board extends JPanel implements ActionListener {
     }
     
     private void loadLevel(int level) {
+        if (level < 0 || level >= LEVELS.length) {
+            level = 0;
+        }
         levelData = new int[BOARD_HEIGHT][BOARD_WIDTH];
         for (int i = 0; i < BOARD_HEIGHT; i++) {
             for (int j = 0; j < BOARD_WIDTH; j++) {
                 levelData[i][j] = LEVELS[level][i][j];
             }
         }
+    }
+    
+    public int getSpriteSize() {
+        return SPRITE_SIZE;
     }
     
     public boolean isWall(int x, int y) {
@@ -144,7 +160,7 @@ public class Board extends JPanel implements ActionListener {
             currentLevel = 0; // Reiniciar al primer nivel
         }
         loadLevel(currentLevel);
-        pacman.reset(180, 300);
+        pacman.reset();
     }
 
     @Override
