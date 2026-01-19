@@ -52,6 +52,8 @@ public class Pacman {
     }
 
     public void move() {
+        // Update power-up state
+        updatePowerUpState();
         int newX = x;
         int newY = y;
         Direction directionToTry = desiredDirection;
@@ -147,12 +149,16 @@ public class Pacman {
     }
     
     public boolean isPowered() {
+        updatePowerUpState();
+        return powered;
+    }
+    
+    private void updatePowerUpState() {
         if (powered) {
             long elapsedTime = System.currentTimeMillis() - powerUpStartTime;
             if (elapsedTime >= POWER_UP_DURATION) {
                 powered = false;
             }
         }
-        return powered;
     }
 }

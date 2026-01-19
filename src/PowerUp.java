@@ -7,6 +7,9 @@ public class PowerUp {
     private Board board;
     private int spriteSize;
     private static final int BLOCK_SIZE = 20;
+    private static final int BOARD_WIDTH = 20;
+    private static final int BOARD_HEIGHT = 20;
+    private static final int MAX_SPAWN_ATTEMPTS = 100;
     private Random random = new Random();
 
     public PowerUp(Board board) {
@@ -18,14 +21,13 @@ public class PowerUp {
 
     public void spawn() {
         // Find a random valid position (not a wall)
-        int maxAttempts = 100;
         int attempt = 0;
         boolean validPosition = false;
         
-        while (!validPosition && attempt < maxAttempts) {
+        while (!validPosition && attempt < MAX_SPAWN_ATTEMPTS) {
             // Random position in the board
-            int col = random.nextInt(20);
-            int row = random.nextInt(20);
+            int col = random.nextInt(BOARD_WIDTH);
+            int row = random.nextInt(BOARD_HEIGHT);
             
             x = col * BLOCK_SIZE;
             y = row * BLOCK_SIZE;
