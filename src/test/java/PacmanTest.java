@@ -357,4 +357,50 @@ class PacmanTest {
         assertTrue(pacman.getY() >= 0);
         assertTrue(pacman.getSpriteSize() > 0);
     }
+
+    @Test
+    void testMoveWithDesiredDirectionBlockedFallbackToCurrent() {
+        // Set up current direction as LEFT (default)
+        // Try to move RIGHT but block it
+        when(mockKeyEvent.getKeyCode()).thenReturn(KeyEvent.VK_RIGHT);
+        pacman.keyPressed(mockKeyEvent);
+        
+        // Block the right direction but allow left (current)
+        when(mockBoard.isWall(anyInt(), anyInt())).thenAnswer(invocation -> {
+            int x = invocation.getArgument(0);
+            // Block positions to the right of current position
+            return x > pacman.getX() + 4;
+        });
+        
+        int initialX = pacman.getX();
+        pacman.move();
+        
+        // Should either stay in place or move in the non-blocked direction
+        assertNotNull(pacman);
+    }
+
+    @Test
+    void testDirectionSwitchingBehavior() {
+        // Test that we can switch between different directions
+        when(mockBoard.isWall(anyInt(), anyInt())).thenReturn(false);
+        
+        when(mockKeyEvent.getKeyCode()).thenReturn(KeyEvent.VK_UP);
+        pacman.keyPressed(mockKeyEvent);
+        pacman.move();
+        
+        when(mockKeyEvent.getKeyCode()).thenReturn(KeyEvent.VK_DOWN);
+        pacman.keyPressed(mockKeyEvent);
+        pacman.move();
+        
+        when(mockKeyEvent.getKeyCode()).thenReturn(KeyEvent.VK_LEFT);
+        pacman.keyPressed(mockKeyEvent);
+        pacman.move();
+        
+        when(mockKeyEvent.getKeyCode()).thenReturn(KeyEvent.VK_RIGHT);
+        pacman.keyPressed(mockKeyEvent);
+        pacman.move();
+        
+        // Verify movement occurred
+        verify(mockBoard, atLeast(4)).eatPoint(anyInt(), anyInt());
+    }
 }

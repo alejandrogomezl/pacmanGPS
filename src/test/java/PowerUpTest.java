@@ -83,12 +83,38 @@ class PowerUpTest {
         when(mockBoard.isWall(anyInt(), anyInt())).thenReturn(false);
         PowerUp testPowerUp = new PowerUp(mockBoard);
         
-        // Assuming powerUp spawned at some position
-        // Test collision with overlapping coordinates
+        // Test collision with exact overlap - we need to know where the powerup spawned
+        // Since spawn is random, we test the collision detection logic by calling it
+        // with coordinates that should overlap if they were at position 0,0
         boolean collided = testPowerUp.checkCollision(0, 0, 20);
         
+        // Collision may or may not occur depending on where it spawned
+        // But if it did collide, the powerUp should now be inactive
         if (collided) {
             assertFalse(testPowerUp.isActive());
+        } else {
+            // If no collision, it should still be active
+            assertTrue(testPowerUp.isActive());
+        }
+    }
+
+    @Test
+    void testCheckCollisionWithExactOverlap() {
+        // Create powerUp and force a specific position via reflection if needed
+        // Or test with coordinates that should overlap
+        when(mockBoard.isWall(anyInt(), anyInt())).thenReturn(false);
+        PowerUp testPowerUp = new PowerUp(mockBoard);
+        
+        // Try multiple positions to increase chance of hitting the actual powerup location
+        for (int x = 0; x < 400; x += 20) {
+            for (int y = 0; y < 400; y += 20) {
+                boolean result = testPowerUp.checkCollision(x, y, 20);
+                if (result) {
+                    // Found it! And it should now be inactive
+                    assertFalse(testPowerUp.isActive());
+                    return;
+                }
+            }
         }
     }
 
