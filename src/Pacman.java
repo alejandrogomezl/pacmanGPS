@@ -9,6 +9,10 @@ public class Pacman {
     private int score = 0;
     private Board board;
     private int spriteSize;
+    private boolean powered = false;
+    private long powerUpStartTime = 0;
+    private static final long POWER_UP_DURATION = 15000; // 15 seconds in milliseconds
+    private static final long BLINK_START_TIME = 12000; // Start blinking at 12 seconds (last 3 seconds)
 
     public Pacman(int x, int y, Board board) {
         this.x = x;
@@ -20,11 +24,35 @@ public class Pacman {
     }
 
     public void draw(Graphics g) {
-        g.setColor(Color.YELLOW);
+        // Update power-up state before drawing
+        updatePowerUpState();
+        
+        Color pacmanColor = Color.YELLOW;
+        
+        if (powered) {
+            long elapsedTime = System.currentTimeMillis() - powerUpStartTime;
+            
+            if (elapsedTime >= BLINK_START_TIME) {
+                // Blink between blue and white in the last 3 seconds
+                // Blink every 250ms
+                if ((elapsedTime / 250) % 2 == 0) {
+                    pacmanColor = Color.BLUE;
+                } else {
+                    pacmanColor = Color.WHITE;
+                }
+            } else {
+                // Solid blue for the first 12 seconds
+                pacmanColor = Color.BLUE;
+            }
+        }
+        
+        g.setColor(pacmanColor);
         g.fillArc(x, y, spriteSize, spriteSize, currentDirection.getAngle(), 300);
     }
 
     public void move() {
+        // Update power-up state
+        updatePowerUpState();
         int newX = x;
         int newY = y;
         Direction directionToTry = desiredDirection;
@@ -98,6 +126,8 @@ public class Pacman {
         this.score = 0;
         this.currentDirection = Direction.LEFT;
         this.desiredDirection = Direction.LEFT;
+        this.powered = false;
+        this.powerUpStartTime = 0;
     }
     
     public int getX() {
@@ -110,5 +140,24 @@ public class Pacman {
     
     public int getSpriteSize() {
         return spriteSize;
+    }
+    
+    public void activatePowerUp() {
+        powered = true;
+        powerUpStartTime = System.currentTimeMillis();
+    }
+    
+    public boolean isPowered() {
+        updatePowerUpState();
+        return powered;
+    }
+    
+    private void updatePowerUpState() {
+        if (powered) {
+            long elapsedTime = System.currentTimeMillis() - powerUpStartTime;
+            if (elapsedTime >= POWER_UP_DURATION) {
+                powered = false;
+            }
+        }
     }
 }
