@@ -37,6 +37,10 @@ public class Pacman {
             case DOWN: newY += 4; break;
         }
         
+        // Apply screen wrapping
+        newX = board.wrapX(newX);
+        newY = board.wrapY(newY);
+        
         // Verificar si la dirección deseada está bloqueada
         int edgeOffset = spriteSize - 1;
         boolean desiredBlocked = board.isWall(newX, newY) || board.isWall(newX + edgeOffset, newY) ||
@@ -54,6 +58,10 @@ public class Pacman {
                 case UP: newY -= 4; break;
                 case DOWN: newY += 4; break;
             }
+            
+            // Apply screen wrapping again for current direction
+            newX = board.wrapX(newX);
+            newY = board.wrapY(newY);
         }
         
         // Verificar colisión con paredes

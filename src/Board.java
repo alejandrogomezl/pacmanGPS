@@ -35,7 +35,7 @@ public class Board extends JPanel implements ActionListener {
             {0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,0,0},
             {0,0,0,0,1,0,1,1,1,1,1,1,1,1,0,1,0,0,0,0},
             {0,0,0,0,1,0,1,0,0,2,2,0,0,1,0,1,0,0,0,0},
-            {0,1,1,1,1,1,1,0,2,2,2,2,0,1,1,1,1,1,1,0},
+            {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
             {0,0,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0},
             {0,0,0,0,1,0,1,1,1,1,1,1,1,1,0,1,0,0,0,0},
             {0,0,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0},
@@ -58,7 +58,7 @@ public class Board extends JPanel implements ActionListener {
             {0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0},
             {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
             {0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0},
-            {0,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,0},
+            {2,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,2},
             {0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0},
             {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
             {0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0},
@@ -81,7 +81,7 @@ public class Board extends JPanel implements ActionListener {
             {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
             {0,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,1,0},
             {0,1,0,0,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0},
-            {0,1,1,1,1,1,1,0,1,2,2,1,0,1,1,1,1,1,1,0},
+            {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
             {0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0},
             {0,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,1,0},
             {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
@@ -127,12 +127,36 @@ public class Board extends JPanel implements ActionListener {
     }
     
     public boolean isWall(int x, int y) {
+        // Apply wrapping before checking wall collision
+        x = wrapX(x);
+        y = wrapY(y);
+        
         int col = x / BLOCK_SIZE;
         int row = y / BLOCK_SIZE;
         if (row < 0 || row >= BOARD_HEIGHT || col < 0 || col >= BOARD_WIDTH) {
             return true;
         }
         return levelData[row][col] == 0;
+    }
+    
+    public int wrapX(int x) {
+        int boardPixelWidth = BOARD_WIDTH * BLOCK_SIZE;
+        if (x < 0) {
+            return x + boardPixelWidth;
+        } else if (x >= boardPixelWidth) {
+            return x - boardPixelWidth;
+        }
+        return x;
+    }
+    
+    public int wrapY(int y) {
+        int boardPixelHeight = BOARD_HEIGHT * BLOCK_SIZE;
+        if (y < 0) {
+            return y + boardPixelHeight;
+        } else if (y >= boardPixelHeight) {
+            return y - boardPixelHeight;
+        }
+        return y;
     }
     
     public void eatPoint(int x, int y) {
