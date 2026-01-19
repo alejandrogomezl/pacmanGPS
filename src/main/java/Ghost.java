@@ -30,25 +30,33 @@ public class Ghost {
         if (random.nextInt(10) == 0) {
             direction = Direction.values()[random.nextInt(4)];
         }
-        
+
         int newX = x;
         int newY = y;
-        
+
         switch (direction) {
-            case LEFT: newX -= 4; break;
-            case RIGHT: newX += 4; break;
-            case UP: newY -= 4; break;
-            case DOWN: newY += 4; break;
+        case LEFT:
+            newX -= 4;
+            break;
+        case RIGHT:
+            newX += 4;
+            break;
+        case UP:
+            newY -= 4;
+            break;
+        case DOWN:
+            newY += 4;
+            break;
         }
-        
+
         // Apply screen wrapping
         newX = board.wrapX(newX);
         newY = board.wrapY(newY);
-        
+
         // Verificar colisión con paredes
         int edgeOffset = spriteSize - 1;
-        if (!board.isWall(newX, newY) && !board.isWall(newX + edgeOffset, newY) &&
-            !board.isWall(newX, newY + edgeOffset) && !board.isWall(newX + edgeOffset, newY + edgeOffset)) {
+        if (!board.isWall(newX, newY) && !board.isWall(newX + edgeOffset, newY)
+                && !board.isWall(newX, newY + edgeOffset) && !board.isWall(newX + edgeOffset, newY + edgeOffset)) {
             x = newX;
             y = newY;
         } else {
@@ -56,19 +64,19 @@ public class Ghost {
             direction = Direction.values()[random.nextInt(4)];
         }
     }
-    
+
     public int getX() {
         return x;
     }
-    
+
     public int getY() {
         return y;
     }
-    
+
     public int getSpriteSize() {
         return spriteSize;
     }
-    
+
     public void reset() {
         this.x = startX;
         this.y = startY;

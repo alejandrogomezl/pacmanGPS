@@ -23,15 +23,15 @@ public class PowerUp {
         // Find a random valid position (not a wall)
         int attempt = 0;
         boolean validPosition = false;
-        
+
         while (!validPosition && attempt < MAX_SPAWN_ATTEMPTS) {
             // Random position in the board
             int col = random.nextInt(BOARD_WIDTH);
             int row = random.nextInt(BOARD_HEIGHT);
-            
+
             x = col * BLOCK_SIZE;
             y = row * BLOCK_SIZE;
-            
+
             // Check if it's not a wall
             if (!board.isWall(x, y)) {
                 validPosition = true;
@@ -55,12 +55,10 @@ public class PowerUp {
         if (!active) {
             return false;
         }
-        
+
         // Check collision with pacman
-        if (pacmanX < x + spriteSize &&
-            pacmanX + pacmanSize > x &&
-            pacmanY < y + spriteSize &&
-            pacmanY + pacmanSize > y) {
+        if (pacmanX < x + spriteSize && pacmanX + pacmanSize > x && pacmanY < y + spriteSize
+                && pacmanY + pacmanSize > y) {
             active = false;
             return true;
         }

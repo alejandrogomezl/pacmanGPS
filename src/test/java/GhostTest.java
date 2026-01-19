@@ -53,9 +53,9 @@ class GhostTest {
     @Test
     void testDraw() {
         Ghost ghost = new Ghost(100, 100, Color.RED, mockBoard);
-        
+
         ghost.draw(mockGraphics);
-        
+
         verify(mockGraphics).setColor(Color.RED);
         verify(mockGraphics).fillOval(100, 100, 20, 20);
     }
@@ -63,9 +63,9 @@ class GhostTest {
     @Test
     void testDrawWithDifferentColor() {
         Ghost ghost = new Ghost(50, 75, Color.PINK, mockBoard);
-        
+
         ghost.draw(mockGraphics);
-        
+
         verify(mockGraphics).setColor(Color.PINK);
         verify(mockGraphics).fillOval(50, 75, 20, 20);
     }
@@ -73,13 +73,13 @@ class GhostTest {
     @Test
     void testMoveWithoutWall() {
         when(mockBoard.isWall(anyInt(), anyInt())).thenReturn(false);
-        
+
         Ghost ghost = new Ghost(100, 100, Color.RED, mockBoard);
         int initialX = ghost.getX();
         int initialY = ghost.getY();
-        
+
         ghost.move();
-        
+
         // Position should change (may be x or y depending on random direction)
         assertTrue(ghost.getX() != initialX || ghost.getY() != initialY);
     }
@@ -87,9 +87,9 @@ class GhostTest {
     @Test
     void testMoveWithWall() {
         when(mockBoard.isWall(anyInt(), anyInt())).thenReturn(true);
-        
+
         Ghost ghost = new Ghost(100, 100, Color.RED, mockBoard);
-        
+
         // Movement should be attempted but blocked by wall
         assertDoesNotThrow(() -> ghost.move());
     }
@@ -97,12 +97,12 @@ class GhostTest {
     @Test
     void testReset() {
         when(mockBoard.isWall(anyInt(), anyInt())).thenReturn(false);
-        
+
         Ghost ghost = new Ghost(100, 150, Color.RED, mockBoard);
-        
+
         // Move the ghost
         ghost.move();
-        
+
         // Reset should return to start position
         ghost.reset();
         assertEquals(100, ghost.getX());
@@ -112,9 +112,9 @@ class GhostTest {
     @Test
     void testMultipleMoves() {
         when(mockBoard.isWall(anyInt(), anyInt())).thenReturn(false);
-        
+
         Ghost ghost = new Ghost(100, 100, Color.RED, mockBoard);
-        
+
         // Multiple moves should work
         for (int i = 0; i < 10; i++) {
             assertDoesNotThrow(() -> ghost.move());
@@ -124,20 +124,20 @@ class GhostTest {
     @Test
     void testWrapXIsCalled() {
         when(mockBoard.isWall(anyInt(), anyInt())).thenReturn(false);
-        
+
         Ghost ghost = new Ghost(100, 100, Color.RED, mockBoard);
         ghost.move();
-        
+
         verify(mockBoard, atLeastOnce()).wrapX(anyInt());
     }
 
     @Test
     void testWrapYIsCalled() {
         when(mockBoard.isWall(anyInt(), anyInt())).thenReturn(false);
-        
+
         Ghost ghost = new Ghost(100, 100, Color.RED, mockBoard);
         ghost.move();
-        
+
         verify(mockBoard, atLeastOnce()).wrapY(anyInt());
     }
 }

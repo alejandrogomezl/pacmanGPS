@@ -1,9 +1,0 @@
-Direction.class
-Board.class
-Board$PacmanKeyAdapter.class
-PowerUp.class
-Ghost.class
-Game.class
-Pacman.class
-Pacman$1.class
-Ghost$1.class

@@ -110,18 +110,18 @@ class BoardTest {
     @Test
     void testEatPoint() {
         board = new Board();
-        
+
         // Use reflection to access pacman and check score
         try {
             java.lang.reflect.Field pacmanField = Board.class.getDeclaredField("pacman");
             pacmanField.setAccessible(true);
             Pacman pacman = (Pacman) pacmanField.get(board);
-            
+
             int initialScore = pacman.getScore();
-            
+
             // Eat a point at a valid location (20, 20 should have a point)
             board.eatPoint(20, 20);
-            
+
             // Score should increase by 10
             assertTrue(pacman.getScore() >= initialScore);
         } catch (Exception e) {
@@ -132,17 +132,17 @@ class BoardTest {
     @Test
     void testEatPointOutOfBounds() {
         board = new Board();
-        
+
         try {
             java.lang.reflect.Field pacmanField = Board.class.getDeclaredField("pacman");
             pacmanField.setAccessible(true);
             Pacman pacman = (Pacman) pacmanField.get(board);
-            
+
             int initialScore = pacman.getScore();
-            
+
             // Try to eat point out of bounds
             board.eatPoint(-10, -10);
-            
+
             // Score should not change
             assertEquals(initialScore, pacman.getScore());
         } catch (Exception e) {
@@ -153,7 +153,7 @@ class BoardTest {
     @Test
     void testPaintComponent() {
         board = new Board();
-        
+
         // Can't test paintComponent directly in headless mode
         // Just verify board was created
         assertNotNull(board);
@@ -162,20 +162,20 @@ class BoardTest {
     @Test
     void testActionPerformed() {
         board = new Board();
-        
+
         assertDoesNotThrow(() -> board.actionPerformed(mockActionEvent));
     }
 
     @Test
     void testActionPerformedWhenGameOver() {
         board = new Board();
-        
+
         // Set gameOver to true using reflection
         try {
             java.lang.reflect.Field gameOverField = Board.class.getDeclaredField("gameOver");
             gameOverField.setAccessible(true);
             gameOverField.set(board, true);
-            
+
             assertDoesNotThrow(() -> board.actionPerformed(mockActionEvent));
         } catch (Exception e) {
             fail("Could not set gameOver field: " + e.getMessage());
@@ -185,11 +185,11 @@ class BoardTest {
     @Test
     void testIsWallWithWrapping() {
         board = new Board();
-        
+
         // Test that wrapping is applied before checking wall
         int x = -5;
         int y = -5;
-        
+
         boolean result = board.isWall(x, y);
         // Should wrap and then check
         assertTrue(result || !result); // Just ensure it doesn't crash
@@ -222,17 +222,17 @@ class BoardTest {
     @Test
     void testEatPointOnWall() {
         board = new Board();
-        
+
         try {
             java.lang.reflect.Field pacmanField = Board.class.getDeclaredField("pacman");
             pacmanField.setAccessible(true);
             Pacman pacman = (Pacman) pacmanField.get(board);
-            
+
             int initialScore = pacman.getScore();
-            
+
             // Try to eat point on a wall (0, 0 is a wall)
             board.eatPoint(0, 0);
-            
+
             // Score should not change
             assertEquals(initialScore, pacman.getScore());
         } catch (Exception e) {
@@ -243,19 +243,19 @@ class BoardTest {
     @Test
     void testEatPointOnEmptyPath() {
         board = new Board();
-        
+
         try {
             java.lang.reflect.Field pacmanField = Board.class.getDeclaredField("pacman");
             pacmanField.setAccessible(true);
             Pacman pacman = (Pacman) pacmanField.get(board);
-            
+
             // First eat the point
             board.eatPoint(20, 20);
             int scoreAfterEat = pacman.getScore();
-            
+
             // Try to eat the same point again (now it's empty)
             board.eatPoint(20, 20);
-            
+
             // Score should not change again
             assertEquals(scoreAfterEat, pacman.getScore());
         } catch (Exception e) {
@@ -266,12 +266,12 @@ class BoardTest {
     @Test
     void testInitialLevelIsZero() {
         board = new Board();
-        
+
         try {
             java.lang.reflect.Field currentLevelField = Board.class.getDeclaredField("currentLevel");
             currentLevelField.setAccessible(true);
             int currentLevel = (int) currentLevelField.get(board);
-            
+
             assertEquals(0, currentLevel);
         } catch (Exception e) {
             fail("Could not access currentLevel field: " + e.getMessage());
@@ -281,12 +281,12 @@ class BoardTest {
     @Test
     void testGhostsAreCreated() {
         board = new Board();
-        
+
         try {
             java.lang.reflect.Field ghostsField = Board.class.getDeclaredField("ghosts");
             ghostsField.setAccessible(true);
             Ghost[] ghosts = (Ghost[]) ghostsField.get(board);
-            
+
             assertNotNull(ghosts);
             assertEquals(3, ghosts.length);
         } catch (Exception e) {
@@ -297,12 +297,12 @@ class BoardTest {
     @Test
     void testPowerUpIsCreated() {
         board = new Board();
-        
+
         try {
             java.lang.reflect.Field powerUpField = Board.class.getDeclaredField("powerUp");
             powerUpField.setAccessible(true);
             PowerUp powerUp = (PowerUp) powerUpField.get(board);
-            
+
             assertNotNull(powerUp);
         } catch (Exception e) {
             fail("Could not access powerUp field: " + e.getMessage());
@@ -312,12 +312,12 @@ class BoardTest {
     @Test
     void testTimerIsCreated() {
         board = new Board();
-        
+
         try {
             java.lang.reflect.Field timerField = Board.class.getDeclaredField("timer");
             timerField.setAccessible(true);
             javax.swing.Timer timer = (javax.swing.Timer) timerField.get(board);
-            
+
             assertNotNull(timer);
             assertTrue(timer.isRunning());
         } catch (Exception e) {
