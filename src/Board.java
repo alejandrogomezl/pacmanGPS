@@ -126,6 +126,10 @@ public class Board extends JPanel implements ActionListener {
     }
     
     public boolean isWall(int x, int y) {
+        // Apply wrapping before checking wall collision
+        x = wrapX(x);
+        y = wrapY(y);
+        
         int col = x / BLOCK_SIZE;
         int row = y / BLOCK_SIZE;
         if (row < 0 || row >= BOARD_HEIGHT || col < 0 || col >= BOARD_WIDTH) {
