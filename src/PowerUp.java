@@ -5,6 +5,7 @@ public class PowerUp {
     private boolean active;
     private boolean collected;
     private int spriteSize;
+    private static final int INNER_OFFSET = 4;
     
     public PowerUp(int x, int y, int spriteSize) {
         this.x = x;
@@ -19,7 +20,8 @@ public class PowerUp {
             g.setColor(Color.MAGENTA);
             g.fillOval(x, y, spriteSize, spriteSize);
             g.setColor(Color.WHITE);
-            g.fillOval(x + 4, y + 4, spriteSize - 8, spriteSize - 8);
+            int innerSize = spriteSize - (INNER_OFFSET * 2);
+            g.fillOval(x + INNER_OFFSET, y + INNER_OFFSET, innerSize, innerSize);
         }
     }
     

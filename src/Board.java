@@ -16,6 +16,7 @@ public class Board extends JPanel implements ActionListener {
     private static final int BOARD_WIDTH = 20;
     private static final int BOARD_HEIGHT = 20;
     private static final int SPRITE_SIZE = 20;
+    private static final int WALL_TILE = 0;
     private static final int PACMAN_START_X = 180;
     private static final int PACMAN_START_Y = 300;
     private static final int GHOST1_START_X = 180;
@@ -198,7 +199,7 @@ public class Board extends JPanel implements ActionListener {
         java.util.List<Point> validPositions = new java.util.ArrayList<>();
         for (int i = 0; i < BOARD_HEIGHT; i++) {
             for (int j = 0; j < BOARD_WIDTH; j++) {
-                if (levelData[i][j] != 0) {
+                if (levelData[i][j] != WALL_TILE) {
                     validPositions.add(new Point(j * BLOCK_SIZE, i * BLOCK_SIZE));
                 }
             }

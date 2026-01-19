@@ -13,6 +13,7 @@ public class Pacman {
     private long powerUpStartTime = 0;
     private static final long POWER_UP_DURATION = 15000; // 15 seconds in milliseconds
     private static final long BLINK_START_TIME = 12000; // Start blinking at 12 seconds (last 3 seconds)
+    private static final long BLINK_INTERVAL = 250; // Blink every 250ms
 
     public Pacman(int x, int y, Board board) {
         this.x = x;
@@ -24,33 +25,33 @@ public class Pacman {
     }
 
     public void draw(Graphics g) {
-        // Update power-up state
-        if (powerUpActive) {
-            long elapsed = System.currentTimeMillis() - powerUpStartTime;
-            if (elapsed >= POWER_UP_DURATION) {
-                powerUpActive = false;
-            }
-        }
-        
-        // Choose color based on power-up state
-        Color pacmanColor = Color.YELLOW;
-        if (powerUpActive) {
-            long elapsed = System.currentTimeMillis() - powerUpStartTime;
-            if (elapsed >= BLINK_START_TIME) {
-                // Blink between blue and white every 250ms
-                if ((elapsed / 250) % 2 == 0) {
-                    pacmanColor = Color.CYAN;
-                } else {
-                    pacmanColor = Color.WHITE;
-                }
-            } else {
-                // Solid blue for first 12 seconds
-                pacmanColor = Color.CYAN;
-            }
-        }
-        
+        Color pacmanColor = getPacmanColor();
         g.setColor(pacmanColor);
         g.fillArc(x, y, spriteSize, spriteSize, currentDirection.getAngle(), 300);
+    }
+    
+    private Color getPacmanColor() {
+        if (!powerUpActive) {
+            return Color.YELLOW;
+        }
+        
+        long elapsed = getElapsedPowerUpTime();
+        if (elapsed >= POWER_UP_DURATION) {
+            powerUpActive = false;
+            return Color.YELLOW;
+        }
+        
+        if (elapsed >= BLINK_START_TIME) {
+            // Blink between cyan and white
+            return (elapsed / BLINK_INTERVAL) % 2 == 0 ? Color.CYAN : Color.WHITE;
+        }
+        
+        // Solid cyan for first 12 seconds
+        return Color.CYAN;
+    }
+    
+    private long getElapsedPowerUpTime() {
+        return System.currentTimeMillis() - powerUpStartTime;
     }
 
     public void move() {
@@ -149,14 +150,15 @@ public class Pacman {
     }
     
     public boolean isPoweredUp() {
-        if (powerUpActive) {
-            long elapsed = System.currentTimeMillis() - powerUpStartTime;
-            if (elapsed >= POWER_UP_DURATION) {
-                powerUpActive = false;
-                return false;
-            }
-            return true;
+        if (!powerUpActive) {
+            return false;
         }
-        return false;
+        
+        if (getElapsedPowerUpTime() >= POWER_UP_DURATION) {
+            powerUpActive = false;
+            return false;
+        }
+        
+        return true;
     }
 }
