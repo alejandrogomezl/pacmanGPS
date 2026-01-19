@@ -16,7 +16,7 @@ para cada método relevante.
 6. **Estilo**: Sigue las convenciones de código de Java (nombres en camelCase, clases en
 PascalCase).
 ## Herramientas y dependencias
-- Java 17
+- Java 25
 - JUnit 5 para pruebas unitarias
 - Maven 3.8+
 - JaCoCo para análisis de cobertura
