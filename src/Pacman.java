@@ -87,5 +87,20 @@ public class Pacman {
     public void reset() {
         this.x = startX;
         this.y = startY;
+        this.score = 0;
+        this.currentDirection = Direction.LEFT;
+        this.desiredDirection = Direction.LEFT;
+    }
+    
+    public int getX() {
+        return x;
+    }
+    
+    public int getY() {
+        return y;
+    }
+    
+    public int getSpriteSize() {
+        return spriteSize;
     }
 }
