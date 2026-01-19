@@ -6,6 +6,7 @@ public class Board extends JPanel implements ActionListener {
     private Timer timer;
     private Pacman pacman;
     private Ghost[] ghosts;
+    private PowerUp powerUp;
     private int currentLevel = 0;
     private int[][] levelData;
     private boolean gameOver = false;
@@ -105,6 +106,7 @@ public class Board extends JPanel implements ActionListener {
             new Ghost(GHOST2_START_X, GHOST2_START_Y, Color.PINK, this),
             new Ghost(GHOST3_START_X, GHOST3_START_Y, Color.CYAN, this)
         };
+        powerUp = new PowerUp(this);
         timer = new Timer(40, this);
         timer.start();
         addKeyListener(new PacmanKeyAdapter());
@@ -186,12 +188,14 @@ public class Board extends JPanel implements ActionListener {
         }
         loadLevel(currentLevel);
         pacman.reset();
+        powerUp.reset();
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         drawBoard(g);
+        powerUp.draw(g);
         pacman.draw(g);
         for (Ghost ghost : ghosts) {
             ghost.draw(g);
@@ -252,6 +256,7 @@ public class Board extends JPanel implements ActionListener {
             for (Ghost ghost : ghosts) {
                 ghost.move();
             }
+            checkPowerUpCollision();
             checkCollisions();
         }
         repaint();
@@ -261,6 +266,11 @@ public class Board extends JPanel implements ActionListener {
         int pacmanX = pacman.getX();
         int pacmanY = pacman.getY();
         int pacmanSize = pacman.getSpriteSize();
+        
+        // Don't check collision if pacman is powered up
+        if (pacman.isPowered()) {
+            return;
+        }
         
         for (Ghost ghost : ghosts) {
             int ghostX = ghost.getX();
@@ -278,11 +288,18 @@ public class Board extends JPanel implements ActionListener {
         }
     }
     
+    private void checkPowerUpCollision() {
+        if (powerUp.checkCollision(pacman.getX(), pacman.getY(), pacman.getSpriteSize())) {
+            pacman.activatePowerUp();
+        }
+    }
+    
     private void restartGame() {
         gameOver = false;
         currentLevel = 0;
         loadLevel(currentLevel);
         pacman.reset();
+        powerUp.reset();
         for (Ghost ghost : ghosts) {
             ghost.reset();
         }
