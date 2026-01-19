@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Board extends JPanel implements ActionListener {
@@ -196,7 +198,7 @@ public class Board extends JPanel implements ActionListener {
     
     private void spawnPowerUp() {
         // Find all valid positions (non-wall positions)
-        java.util.List<Point> validPositions = new java.util.ArrayList<>();
+        List<Point> validPositions = new ArrayList<>();
         for (int i = 0; i < BOARD_HEIGHT; i++) {
             for (int j = 0; j < BOARD_WIDTH; j++) {
                 if (levelData[i][j] != WALL_TILE) {

@@ -16,7 +16,7 @@ public class PowerUp {
     }
     
     public void draw(Graphics g) {
-        if (active && !collected) {
+        if (isActive()) {
             g.setColor(Color.MAGENTA);
             g.fillOval(x, y, spriteSize, spriteSize);
             g.setColor(Color.WHITE);

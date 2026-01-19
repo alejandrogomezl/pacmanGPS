@@ -31,16 +31,13 @@ public class Pacman {
     }
     
     private Color getPacmanColor() {
+        updatePowerUpStatus();
+        
         if (!powerUpActive) {
             return Color.YELLOW;
         }
         
         long elapsed = getElapsedPowerUpTime();
-        if (elapsed >= POWER_UP_DURATION) {
-            powerUpActive = false;
-            return Color.YELLOW;
-        }
-        
         if (elapsed >= BLINK_START_TIME) {
             // Blink between cyan and white
             return (elapsed / BLINK_INTERVAL) % 2 == 0 ? Color.CYAN : Color.WHITE;
@@ -48,6 +45,12 @@ public class Pacman {
         
         // Solid cyan for first 12 seconds
         return Color.CYAN;
+    }
+    
+    private void updatePowerUpStatus() {
+        if (powerUpActive && getElapsedPowerUpTime() >= POWER_UP_DURATION) {
+            powerUpActive = false;
+        }
     }
     
     private long getElapsedPowerUpTime() {
@@ -150,15 +153,7 @@ public class Pacman {
     }
     
     public boolean isPoweredUp() {
-        if (!powerUpActive) {
-            return false;
-        }
-        
-        if (getElapsedPowerUpTime() >= POWER_UP_DURATION) {
-            powerUpActive = false;
-            return false;
-        }
-        
-        return true;
+        updatePowerUpStatus();
+        return powerUpActive;
     }
 }
