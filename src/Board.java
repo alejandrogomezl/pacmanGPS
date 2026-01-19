@@ -1,11 +1,14 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Random;
 
 public class Board extends JPanel implements ActionListener {
     private Timer timer;
     private Pacman pacman;
     private Ghost[] ghosts;
+    private PowerUp powerUp;
+    private Random random = new Random();
     private int currentLevel = 0;
     private int[][] levelData;
     private boolean gameOver = false;
@@ -105,6 +108,7 @@ public class Board extends JPanel implements ActionListener {
             new Ghost(GHOST2_START_X, GHOST2_START_Y, Color.PINK, this),
             new Ghost(GHOST3_START_X, GHOST3_START_Y, Color.CYAN, this)
         };
+        spawnPowerUp();
         timer = new Timer(40, this);
         timer.start();
         addKeyListener(new PacmanKeyAdapter());
@@ -186,12 +190,34 @@ public class Board extends JPanel implements ActionListener {
         }
         loadLevel(currentLevel);
         pacman.reset();
+        spawnPowerUp();
+    }
+    
+    private void spawnPowerUp() {
+        // Find all valid positions (non-wall positions)
+        java.util.List<Point> validPositions = new java.util.ArrayList<>();
+        for (int i = 0; i < BOARD_HEIGHT; i++) {
+            for (int j = 0; j < BOARD_WIDTH; j++) {
+                if (levelData[i][j] != 0) {
+                    validPositions.add(new Point(j * BLOCK_SIZE, i * BLOCK_SIZE));
+                }
+            }
+        }
+        
+        // Pick a random valid position
+        if (!validPositions.isEmpty()) {
+            Point randomPos = validPositions.get(random.nextInt(validPositions.size()));
+            powerUp = new PowerUp(randomPos.x, randomPos.y, SPRITE_SIZE);
+        }
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         drawBoard(g);
+        if (powerUp != null) {
+            powerUp.draw(g);
+        }
         pacman.draw(g);
         for (Ghost ghost : ghosts) {
             ghost.draw(g);
@@ -262,6 +288,22 @@ public class Board extends JPanel implements ActionListener {
         int pacmanY = pacman.getY();
         int pacmanSize = pacman.getSpriteSize();
         
+        // Check power-up collision
+        if (powerUp != null && powerUp.isActive()) {
+            int powerUpX = powerUp.getX();
+            int powerUpY = powerUp.getY();
+            int powerUpSize = powerUp.getSpriteSize();
+            
+            if (pacmanX < powerUpX + powerUpSize &&
+                pacmanX + pacmanSize > powerUpX &&
+                pacmanY < powerUpY + powerUpSize &&
+                pacmanY + pacmanSize > powerUpY) {
+                powerUp.collect();
+                pacman.activatePowerUp();
+            }
+        }
+        
+        // Check ghost collisions
         for (Ghost ghost : ghosts) {
             int ghostX = ghost.getX();
             int ghostY = ghost.getY();
@@ -272,8 +314,11 @@ public class Board extends JPanel implements ActionListener {
                 pacmanX + pacmanSize > ghostX &&
                 pacmanY < ghostY + ghostSize &&
                 pacmanY + pacmanSize > ghostY) {
-                gameOver = true;
-                break;
+                // Only game over if not powered up
+                if (!pacman.isPoweredUp()) {
+                    gameOver = true;
+                    break;
+                }
             }
         }
     }
@@ -286,6 +331,7 @@ public class Board extends JPanel implements ActionListener {
         for (Ghost ghost : ghosts) {
             ghost.reset();
         }
+        spawnPowerUp();
     }
 
     private class PacmanKeyAdapter extends KeyAdapter {
