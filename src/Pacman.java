@@ -24,16 +24,15 @@ public class Pacman {
     }
 
     public void draw(Graphics g) {
+        // Update power-up state before drawing
+        updatePowerUpState();
+        
         Color pacmanColor = Color.YELLOW;
         
         if (powered) {
             long elapsedTime = System.currentTimeMillis() - powerUpStartTime;
             
-            // Check if power-up has expired
-            if (elapsedTime >= POWER_UP_DURATION) {
-                powered = false;
-                pacmanColor = Color.YELLOW;
-            } else if (elapsedTime >= BLINK_START_TIME) {
+            if (elapsedTime >= BLINK_START_TIME) {
                 // Blink between blue and white in the last 3 seconds
                 // Blink every 250ms
                 if ((elapsedTime / 250) % 2 == 0) {
