@@ -528,4 +528,181 @@ class BoardTest {
         assertDoesNotThrow(() -> board.isWall(1000, 1000));
         assertDoesNotThrow(() -> board.isWall(500, 500));
     }
+
+    @Test
+    void testLevelAdvancementAndWrapAround() throws Exception {
+        // Get reference to currentLevel field
+        Field currentLevelField = Board.class.getDeclaredField("currentLevel");
+        currentLevelField.setAccessible(true);
+        
+        // Get reference to LEVELS array
+        Field levelsField = Board.class.getDeclaredField("LEVELS");
+        levelsField.setAccessible(true);
+        int[][][] levels = (int[][][]) levelsField.get(null);
+        int totalLevels = levels.length;
+        
+        // Set current level to the last level
+        currentLevelField.setInt(board, totalLevels - 1);
+        
+        // Get reference to levelData and clear all points to trigger level completion
+        Field levelDataField = Board.class.getDeclaredField("levelData");
+        levelDataField.setAccessible(true);
+        int[][] levelData = (int[][]) levelDataField.get(board);
+        
+        // Remove all points from the level
+        for (int i = 0; i < levelData.length; i++) {
+            for (int j = 0; j < levelData[i].length; j++) {
+                if (levelData[i][j] == 1) {
+                    levelData[i][j] = 0;
+                }
+            }
+        }
+        
+        // Get reference to checkLevelComplete method
+        Method checkLevelCompleteMethod = Board.class.getDeclaredMethod("checkLevelComplete");
+        checkLevelCompleteMethod.setAccessible(true);
+        
+        // Call checkLevelComplete - this should wrap around to 0 (covers line 187)
+        checkLevelCompleteMethod.invoke(board);
+        
+        // Verify level wrapped to 0
+        int newLevel = currentLevelField.getInt(board);
+        assertEquals(0, newLevel);
+    }
+
+    @Test
+    void testCheckCollisionsWhenPacmanPowered() throws Exception {
+        // Get reference to pacman
+        Field pacmanField = Board.class.getDeclaredField("pacman");
+        pacmanField.setAccessible(true);
+        Pacman pacman = (Pacman) pacmanField.get(board);
+        
+        // Power up pacman
+        pacman.activatePowerUp();
+        assertTrue(pacman.isPowered());
+        
+        // Get reference to checkCollisions method
+        Method checkCollisionsMethod = Board.class.getDeclaredMethod("checkCollisions");
+        checkCollisionsMethod.setAccessible(true);
+        
+        // Get reference to gameOver field
+        Field gameOverField = Board.class.getDeclaredField("gameOver");
+        gameOverField.setAccessible(true);
+        
+        // Call checkCollisions - should return early when powered (covers line 272)
+        checkCollisionsMethod.invoke(board);
+        
+        // Game should not be over even if ghosts are nearby, because pacman is powered
+        assertFalse(gameOverField.getBoolean(board));
+    }
+
+    @Test
+    void testCheckCollisionsCausesGameOver() throws Exception {
+        // Get reference to pacman and position it
+        Field pacmanField = Board.class.getDeclaredField("pacman");
+        pacmanField.setAccessible(true);
+        Pacman pacman = (Pacman) pacmanField.get(board);
+        
+        // Ensure pacman is not powered
+        assertFalse(pacman.isPowered());
+        
+        // Get reference to ghosts array
+        Field ghostsField = Board.class.getDeclaredField("ghosts");
+        ghostsField.setAccessible(true);
+        Ghost[] ghosts = (Ghost[]) ghostsField.get(board);
+        
+        // Position first ghost at pacman's location to trigger collision
+        Field ghostXField = Ghost.class.getDeclaredField("x");
+        Field ghostYField = Ghost.class.getDeclaredField("y");
+        ghostXField.setAccessible(true);
+        ghostYField.setAccessible(true);
+        ghostXField.setInt(ghosts[0], pacman.getX());
+        ghostYField.setInt(ghosts[0], pacman.getY());
+        
+        // Get reference to checkCollisions method
+        Method checkCollisionsMethod = Board.class.getDeclaredMethod("checkCollisions");
+        checkCollisionsMethod.setAccessible(true);
+        
+        // Get reference to gameOver field
+        Field gameOverField = Board.class.getDeclaredField("gameOver");
+        gameOverField.setAccessible(true);
+        
+        // Call checkCollisions - should set gameOver to true (covers lines 285-286)
+        checkCollisionsMethod.invoke(board);
+        
+        // Game should be over due to collision
+        assertTrue(gameOverField.getBoolean(board));
+    }
+
+    @Test
+    void testCheckPowerUpCollisionActivatesPowerUp() throws Exception {
+        // Get reference to pacman
+        Field pacmanField = Board.class.getDeclaredField("pacman");
+        pacmanField.setAccessible(true);
+        Pacman pacman = (Pacman) pacmanField.get(board);
+        
+        // Get reference to powerUp
+        Field powerUpField = Board.class.getDeclaredField("powerUp");
+        powerUpField.setAccessible(true);
+        PowerUp powerUp = (PowerUp) powerUpField.get(board);
+        
+        // Ensure powerup is active
+        if (!powerUp.isActive()) {
+            powerUp.reset();
+        }
+        
+        // Position pacman at powerup location
+        Field powerUpXField = PowerUp.class.getDeclaredField("x");
+        Field powerUpYField = PowerUp.class.getDeclaredField("y");
+        powerUpXField.setAccessible(true);
+        powerUpYField.setAccessible(true);
+        int powerUpX = powerUpXField.getInt(powerUp);
+        int powerUpY = powerUpYField.getInt(powerUp);
+        
+        Field pacmanXField = Pacman.class.getDeclaredField("x");
+        Field pacmanYField = Pacman.class.getDeclaredField("y");
+        pacmanXField.setAccessible(true);
+        pacmanYField.setAccessible(true);
+        pacmanXField.setInt(pacman, powerUpX);
+        pacmanYField.setInt(pacman, powerUpY);
+        
+        // Get reference to checkPowerUpCollision method
+        Method checkPowerUpCollisionMethod = Board.class.getDeclaredMethod("checkPowerUpCollision");
+        checkPowerUpCollisionMethod.setAccessible(true);
+        
+        // Call checkPowerUpCollision - should activate power-up (covers line 293)
+        checkPowerUpCollisionMethod.invoke(board);
+        
+        // Pacman should now be powered
+        assertTrue(pacman.isPowered());
+    }
+
+    @Test
+    void testPaintComponentMethod() throws Exception {
+        // Create a mock BufferedImage to get a real Graphics object
+        java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(400, 400, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        Graphics g = image.getGraphics();
+        
+        // Call paintComponent - this covers lines 196-207
+        assertDoesNotThrow(() -> board.paintComponent(g));
+        
+        g.dispose();
+    }
+
+    @Test
+    void testPaintComponentWhenGameOver() throws Exception {
+        // Set game over to true
+        Field gameOverField = Board.class.getDeclaredField("gameOver");
+        gameOverField.setAccessible(true);
+        gameOverField.setBoolean(board, true);
+        
+        // Create a real Graphics object
+        java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(400, 400, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        Graphics g = image.getGraphics();
+        
+        // Call paintComponent - this should call drawGameOver (covers line 205)
+        assertDoesNotThrow(() -> board.paintComponent(g));
+        
+        g.dispose();
+    }
 }

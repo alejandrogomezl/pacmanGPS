@@ -112,6 +112,10 @@ class PowerUpTest {
                 if (result) {
                     // Found it! And it should now be inactive
                     assertFalse(testPowerUp.isActive());
+                    
+                    // Now test that calling checkCollision when inactive returns false (covers line 56)
+                    boolean resultWhenInactive = testPowerUp.checkCollision(x, y, 20);
+                    assertFalse(resultWhenInactive);
                     return;
                 }
             }
