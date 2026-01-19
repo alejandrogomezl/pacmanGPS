@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Board.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PacMan GPS</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">Board.java</span></div><h1>Board.java</h1><pre class="source lang-java linenums">import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class Board extends JPanel implements ActionListener {
+    private Timer timer;
+    private Pacman pacman;
+    private Ghost[] ghosts;
+    private PowerUp powerUp;
+<span class="fc" id="L10">    private int currentLevel = 0;</span>
+    private int[][] levelData;
+<span class="fc" id="L12">    private boolean gameOver = false;</span>
+    private static final int BLOCK_SIZE = 20;
+    private static final int BOARD_WIDTH = 20;
+    private static final int BOARD_HEIGHT = 20;
+    private static final int SPRITE_SIZE = 20;
+    private static final int PACMAN_START_X = 180;
+    private static final int PACMAN_START_Y = 300;
+    private static final int GHOST1_START_X = 180;
+    private static final int GHOST1_START_Y = 180;
+    private static final int GHOST2_START_X = 60;
+    private static final int GHOST2_START_Y = 60;
+    private static final int GHOST3_START_X = 300;
+    private static final int GHOST3_START_Y = 60;
+    
+    // Códigos para el mapa: 0=pared, 1=punto, 2=camino vacío
+<span class="fc" id="L27">    private static final int[][][] LEVELS = {</span>
+        // Nivel 1 - Diseño simple
+        {
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,0},
+            {0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0},
+            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+            {0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0,1,0},
+            {0,1,1,1,1,0,1,1,1,0,0,1,1,1,0,1,1,1,1,0},
+            {0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,0,0},
+            {0,0,0,0,1,0,1,1,1,1,1,1,1,1,0,1,0,0,0,0},
+            {0,0,0,0,1,0,1,0,0,2,2,0,0,1,0,1,0,0,0,0},
+            {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
+            {0,0,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0},
+            {0,0,0,0,1,0,1,1,1,1,1,1,1,1,0,1,0,0,0,0},
+            {0,0,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0},
+            {0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,0},
+            {0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0},
+            {0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0},
+            {0,0,1,0,1,0,1,0,0,0,0,0,0,1,0,1,0,1,0,0},
+            {0,1,1,1,1,0,1,1,1,0,0,1,1,1,0,1,1,1,1,0},
+            {0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+        },
+        // Nivel 2 - Diseño con más paredes
+        {
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+            {0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0},
+            {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
+            {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
+            {0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0},
+            {0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0},
+            {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
+            {0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0},
+            {2,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,2},
+            {0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0},
+            {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
+            {0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0},
+            {0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0},
+            {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
+            {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
+            {0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0},
+            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+            {0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+        },
+        // Nivel 3 - Diseño complejo
+        {
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,1,1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,1,0},
+            {0,1,0,0,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0},
+            {0,1,0,1,1,0,1,1,1,0,0,1,1,1,0,1,1,0,1,0},
+            {0,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,0},
+            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+            {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
+            {0,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,1,0},
+            {0,1,0,0,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0},
+            {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
+            {0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0},
+            {0,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,1,0},
+            {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
+            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+            {0,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,0},
+            {0,1,0,1,1,0,1,1,1,0,0,1,1,1,0,1,1,0,1,0},
+            {0,1,0,0,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0},
+            {0,1,1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,1,0},
+            {0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+        }
+    };
+
+<span class="fc" id="L99">    public Board() {</span>
+<span class="fc" id="L100">        setFocusable(true);</span>
+<span class="fc" id="L101">        setBackground(Color.BLACK);</span>
+<span class="fc" id="L102">        loadLevel(currentLevel);</span>
+<span class="fc" id="L103">        pacman = new Pacman(PACMAN_START_X, PACMAN_START_Y, this);</span>
+<span class="fc" id="L104">        ghosts = new Ghost[] {</span>
+            new Ghost(GHOST1_START_X, GHOST1_START_Y, Color.RED, this),
+            new Ghost(GHOST2_START_X, GHOST2_START_Y, Color.PINK, this),
+            new Ghost(GHOST3_START_X, GHOST3_START_Y, Color.CYAN, this)
+        };
+<span class="fc" id="L109">        powerUp = new PowerUp(this);</span>
+<span class="fc" id="L110">        timer = new Timer(40, this);</span>
+<span class="fc" id="L111">        timer.start();</span>
+<span class="fc" id="L112">        addKeyListener(new PacmanKeyAdapter());</span>
+<span class="fc" id="L113">    }</span>
+    
+    private void loadLevel(int level) {
+<span class="pc bpc" id="L116" title="2 of 4 branches missed.">        if (level &lt; 0 || level &gt;= LEVELS.length) {</span>
+<span class="nc" id="L117">            level = 0;</span>
+        }
+<span class="fc" id="L119">        levelData = new int[BOARD_HEIGHT][BOARD_WIDTH];</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        for (int i = 0; i &lt; BOARD_HEIGHT; i++) {</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">            for (int j = 0; j &lt; BOARD_WIDTH; j++) {</span>
+<span class="fc" id="L122">                levelData[i][j] = LEVELS[level][i][j];</span>
+            }
+        }
+<span class="fc" id="L125">    }</span>
+    
+    public int getSpriteSize() {
+<span class="fc" id="L128">        return SPRITE_SIZE;</span>
+    }
+    
+    public boolean isWall(int x, int y) {
+        // Apply wrapping before checking wall collision
+<span class="fc" id="L133">        x = wrapX(x);</span>
+<span class="fc" id="L134">        y = wrapY(y);</span>
+        
+<span class="fc" id="L136">        int col = x / BLOCK_SIZE;</span>
+<span class="fc" id="L137">        int row = y / BLOCK_SIZE;</span>
+<span class="pc bpc" id="L138" title="3 of 8 branches missed.">        if (row &lt; 0 || row &gt;= BOARD_HEIGHT || col &lt; 0 || col &gt;= BOARD_WIDTH) {</span>
+<span class="fc" id="L139">            return true;</span>
+        }
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        return levelData[row][col] == 0;</span>
+    }
+    
+    public int wrapX(int x) {
+<span class="fc" id="L145">        int boardPixelWidth = BOARD_WIDTH * BLOCK_SIZE;</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        if (x &lt; 0) {</span>
+<span class="fc" id="L147">            return x + boardPixelWidth;</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        } else if (x &gt;= boardPixelWidth) {</span>
+<span class="fc" id="L149">            return x - boardPixelWidth;</span>
+        }
+<span class="fc" id="L151">        return x;</span>
+    }
+    
+    public int wrapY(int y) {
+<span class="fc" id="L155">        int boardPixelHeight = BOARD_HEIGHT * BLOCK_SIZE;</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if (y &lt; 0) {</span>
+<span class="fc" id="L157">            return y + boardPixelHeight;</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        } else if (y &gt;= boardPixelHeight) {</span>
+<span class="fc" id="L159">            return y - boardPixelHeight;</span>
+        }
+<span class="fc" id="L161">        return y;</span>
+    }
+    
+    public void eatPoint(int x, int y) {
+<span class="fc" id="L165">        int col = x / BLOCK_SIZE;</span>
+<span class="fc" id="L166">        int row = y / BLOCK_SIZE;</span>
+<span class="pc bpc" id="L167" title="4 of 8 branches missed.">        if (row &gt;= 0 &amp;&amp; row &lt; BOARD_HEIGHT &amp;&amp; col &gt;= 0 &amp;&amp; col &lt; BOARD_WIDTH) {</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">            if (levelData[row][col] == 1) {</span>
+<span class="fc" id="L169">                levelData[row][col] = 2;</span>
+<span class="fc" id="L170">                pacman.addScore(10);</span>
+<span class="fc" id="L171">                checkLevelComplete();</span>
+            }
+        }
+<span class="fc" id="L174">    }</span>
+    
+    private void checkLevelComplete() {
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">        for (int i = 0; i &lt; BOARD_HEIGHT; i++) {</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">            for (int j = 0; j &lt; BOARD_WIDTH; j++) {</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">                if (levelData[i][j] == 1) {</span>
+<span class="fc" id="L180">                    return;</span>
+                }
+            }
+        }
+        // Todos los puntos comidos, avanzar al siguiente nivel
+<span class="nc" id="L185">        currentLevel++;</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        if (currentLevel &gt;= LEVELS.length) {</span>
+<span class="nc" id="L187">            currentLevel = 0; // Reiniciar al primer nivel</span>
+        }
+<span class="nc" id="L189">        loadLevel(currentLevel);</span>
+<span class="nc" id="L190">        pacman.reset();</span>
+<span class="nc" id="L191">        powerUp.reset();</span>
+<span class="nc" id="L192">    }</span>
+
+    @Override
+    public void paintComponent(Graphics g) {
+<span class="nc" id="L196">        super.paintComponent(g);</span>
+<span class="nc" id="L197">        drawBoard(g);</span>
+<span class="nc" id="L198">        powerUp.draw(g);</span>
+<span class="nc" id="L199">        pacman.draw(g);</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">        for (Ghost ghost : ghosts) {</span>
+<span class="nc" id="L201">            ghost.draw(g);</span>
+        }
+        
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        if (gameOver) {</span>
+<span class="nc" id="L205">            drawGameOver(g);</span>
+        }
+<span class="nc" id="L207">    }</span>
+
+    private void drawBoard(Graphics g) {
+        // Dibujar paredes y puntos
+<span class="nc bnc" id="L211" title="All 2 branches missed.">        for (int i = 0; i &lt; BOARD_HEIGHT; i++) {</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">            for (int j = 0; j &lt; BOARD_WIDTH; j++) {</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">                if (levelData[i][j] == 0) {</span>
+                    // Dibujar pared
+<span class="nc" id="L215">                    g.setColor(Color.BLUE);</span>
+<span class="nc" id="L216">                    g.fillRect(j * BLOCK_SIZE, i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">                } else if (levelData[i][j] == 1) {</span>
+                    // Dibujar punto
+<span class="nc" id="L219">                    g.setColor(Color.WHITE);</span>
+<span class="nc" id="L220">                    g.fillOval(j * BLOCK_SIZE + 7, i * BLOCK_SIZE + 7, 6, 6);</span>
+                }
+            }
+        }
+        
+        // Dibujar información
+<span class="nc" id="L226">        g.setColor(Color.YELLOW);</span>
+<span class="nc" id="L227">        g.drawString(&quot;Score: &quot; + pacman.getScore(), 10, 410);</span>
+<span class="nc" id="L228">        g.drawString(&quot;Level: &quot; + (currentLevel + 1), 150, 410);</span>
+<span class="nc" id="L229">    }</span>
+    
+    private void drawGameOver(Graphics g) {
+<span class="nc" id="L232">        g.setColor(new Color(0, 0, 0, 180));</span>
+<span class="nc" id="L233">        g.fillRect(0, 0, getWidth(), getHeight());</span>
+        
+<span class="nc" id="L235">        g.setColor(Color.RED);</span>
+<span class="nc" id="L236">        g.setFont(new Font(&quot;Arial&quot;, Font.BOLD, 48));</span>
+<span class="nc" id="L237">        FontMetrics fm = g.getFontMetrics();</span>
+<span class="nc" id="L238">        String gameOverText = &quot;GAME OVER&quot;;</span>
+<span class="nc" id="L239">        int x = (getWidth() - fm.stringWidth(gameOverText)) / 2;</span>
+<span class="nc" id="L240">        int y = getHeight() / 2 - 20;</span>
+<span class="nc" id="L241">        g.drawString(gameOverText, x, y);</span>
+        
+<span class="nc" id="L243">        g.setColor(Color.WHITE);</span>
+<span class="nc" id="L244">        g.setFont(new Font(&quot;Arial&quot;, Font.PLAIN, 20));</span>
+<span class="nc" id="L245">        fm = g.getFontMetrics();</span>
+<span class="nc" id="L246">        String restartText = &quot;Press SPACE to restart&quot;;</span>
+<span class="nc" id="L247">        x = (getWidth() - fm.stringWidth(restartText)) / 2;</span>
+<span class="nc" id="L248">        y = getHeight() / 2 + 40;</span>
+<span class="nc" id="L249">        g.drawString(restartText, x, y);</span>
+<span class="nc" id="L250">    }</span>
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+<span class="fc bfc" id="L254" title="All 2 branches covered.">        if (!gameOver) {</span>
+<span class="fc" id="L255">            pacman.move();</span>
+<span class="fc bfc" id="L256" title="All 2 branches covered.">            for (Ghost ghost : ghosts) {</span>
+<span class="fc" id="L257">                ghost.move();</span>
+            }
+<span class="fc" id="L259">            checkPowerUpCollision();</span>
+<span class="fc" id="L260">            checkCollisions();</span>
+        }
+<span class="fc" id="L262">        repaint();</span>
+<span class="fc" id="L263">    }</span>
+    
+    private void checkCollisions() {
+<span class="fc" id="L266">        int pacmanX = pacman.getX();</span>
+<span class="fc" id="L267">        int pacmanY = pacman.getY();</span>
+<span class="fc" id="L268">        int pacmanSize = pacman.getSpriteSize();</span>
+        
+        // Don't check collision if pacman is powered up
+<span class="fc bfc" id="L271" title="All 2 branches covered.">        if (pacman.isPowered()) {</span>
+<span class="fc" id="L272">            return;</span>
+        }
+        
+<span class="fc bfc" id="L275" title="All 2 branches covered.">        for (Ghost ghost : ghosts) {</span>
+<span class="fc" id="L276">            int ghostX = ghost.getX();</span>
+<span class="fc" id="L277">            int ghostY = ghost.getY();</span>
+<span class="fc" id="L278">            int ghostSize = ghost.getSpriteSize();</span>
+            
+            // Detectar colisión usando rectángulos
+<span class="pc bpc" id="L281" title="3 of 8 branches missed.">            if (pacmanX &lt; ghostX + ghostSize &amp;&amp;</span>
+                pacmanX + pacmanSize &gt; ghostX &amp;&amp;
+                pacmanY &lt; ghostY + ghostSize &amp;&amp;
+                pacmanY + pacmanSize &gt; ghostY) {
+<span class="nc" id="L285">                gameOver = true;</span>
+<span class="nc" id="L286">                break;</span>
+            }
+        }
+<span class="fc" id="L289">    }</span>
+    
+    private void checkPowerUpCollision() {
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        if (powerUp.checkCollision(pacman.getX(), pacman.getY(), pacman.getSpriteSize())) {</span>
+<span class="fc" id="L293">            pacman.activatePowerUp();</span>
+        }
+<span class="fc" id="L295">    }</span>
+    
+    private void restartGame() {
+<span class="nc" id="L298">        gameOver = false;</span>
+<span class="nc" id="L299">        currentLevel = 0;</span>
+<span class="nc" id="L300">        loadLevel(currentLevel);</span>
+<span class="nc" id="L301">        pacman.reset();</span>
+<span class="nc" id="L302">        powerUp.reset();</span>
+<span class="nc bnc" id="L303" title="All 2 branches missed.">        for (Ghost ghost : ghosts) {</span>
+<span class="nc" id="L304">            ghost.reset();</span>
+        }
+<span class="nc" id="L306">    }</span>
+
+<span class="fc" id="L308">    private class PacmanKeyAdapter extends KeyAdapter {</span>
+        @Override
+        public void keyPressed(KeyEvent e) {
+<span class="nc bnc" id="L311" title="All 4 branches missed.">            if (gameOver &amp;&amp; e.getKeyCode() == KeyEvent.VK_SPACE) {</span>
+<span class="nc" id="L312">                restartGame();</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">            } else if (!gameOver) {</span>
+<span class="nc" id="L314">                pacman.keyPressed(e);</span>
+            }
+<span class="nc" id="L316">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
