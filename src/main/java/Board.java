@@ -22,96 +22,87 @@ public class Board extends JPanel implements ActionListener {
     private static final int GHOST2_START_Y = 60;
     private static final int GHOST3_START_X = 300;
     private static final int GHOST3_START_Y = 60;
-    
+
     // Códigos para el mapa: 0=pared, 1=punto, 2=camino vacío
     private static final int[][][] LEVELS = {
-        // Nivel 1 - Diseño simple
-        {
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,0},
-            {0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0},
-            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
-            {0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0,1,0},
-            {0,1,1,1,1,0,1,1,1,0,0,1,1,1,0,1,1,1,1,0},
-            {0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,0,0},
-            {0,0,0,0,1,0,1,1,1,1,1,1,1,1,0,1,0,0,0,0},
-            {0,0,0,0,1,0,1,0,0,2,2,0,0,1,0,1,0,0,0,0},
-            {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
-            {0,0,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0},
-            {0,0,0,0,1,0,1,1,1,1,1,1,1,1,0,1,0,0,0,0},
-            {0,0,0,0,1,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0},
-            {0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,0},
-            {0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0},
-            {0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0},
-            {0,0,1,0,1,0,1,0,0,0,0,0,0,1,0,1,0,1,0,0},
-            {0,1,1,1,1,0,1,1,1,0,0,1,1,1,0,1,1,1,1,0},
-            {0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-        },
-        // Nivel 2 - Diseño con más paredes
-        {
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
-            {0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0},
-            {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
-            {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
-            {0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0},
-            {0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0},
-            {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
-            {0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0},
-            {2,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,2},
-            {0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0},
-            {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
-            {0,1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0},
-            {0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0},
-            {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
-            {0,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,1,0},
-            {0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0},
-            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
-            {0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-        },
-        // Nivel 3 - Diseño complejo
-        {
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-            {0,1,1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,1,0},
-            {0,1,0,0,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0},
-            {0,1,0,1,1,0,1,1,1,0,0,1,1,1,0,1,1,0,1,0},
-            {0,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,0},
-            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
-            {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
-            {0,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,1,0},
-            {0,1,0,0,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0},
-            {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
-            {0,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0},
-            {0,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,1,0},
-            {0,1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0},
-            {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
-            {0,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,0},
-            {0,1,0,1,1,0,1,1,1,0,0,1,1,1,0,1,1,0,1,0},
-            {0,1,0,0,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0},
-            {0,1,1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,1,0},
-            {0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0},
-            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-        }
-    };
+            // Nivel 1 - Diseño simple
+            { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                    { 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
+                    { 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0 },
+                    { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
+                    { 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0 },
+                    { 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
+                    { 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0 },
+                    { 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0 },
+                    { 0, 0, 0, 0, 1, 0, 1, 0, 0, 2, 2, 0, 0, 1, 0, 1, 0, 0, 0, 0 },
+                    { 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 },
+                    { 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0 },
+                    { 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0 },
+                    { 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0 },
+                    { 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
+                    { 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0 },
+                    { 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0 },
+                    { 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0 },
+                    { 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0 },
+                    { 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0 },
+                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
+            // Nivel 2 - Diseño con más paredes
+            { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                    { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
+                    { 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0 },
+                    { 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0 },
+                    { 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0 },
+                    { 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0 },
+                    { 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0 },
+                    { 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0 },
+                    { 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0 },
+                    { 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2 },
+                    { 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0 },
+                    { 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0 },
+                    { 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0 },
+                    { 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0 },
+                    { 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0 },
+                    { 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0 },
+                    { 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0 },
+                    { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
+                    { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
+                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } },
+            // Nivel 3 - Diseño complejo
+            { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                    { 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0 },
+                    { 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0 },
+                    { 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0 },
+                    { 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0 },
+                    { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
+                    { 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0 },
+                    { 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0 },
+                    { 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0 },
+                    { 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 },
+                    { 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0 },
+                    { 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0 },
+                    { 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0 },
+                    { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
+                    { 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0 },
+                    { 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0 },
+                    { 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0 },
+                    { 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0 },
+                    { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
+                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } } };
 
     public Board() {
         setFocusable(true);
         setBackground(Color.BLACK);
         loadLevel(currentLevel);
         pacman = new Pacman(PACMAN_START_X, PACMAN_START_Y, this);
-        ghosts = new Ghost[] {
-            new Ghost(GHOST1_START_X, GHOST1_START_Y, Color.RED, this),
-            new Ghost(GHOST2_START_X, GHOST2_START_Y, Color.PINK, this),
-            new Ghost(GHOST3_START_X, GHOST3_START_Y, Color.CYAN, this)
-        };
+        ghosts = new Ghost[] { new Ghost(GHOST1_START_X, GHOST1_START_Y, Color.RED, this),
+                new Ghost(GHOST2_START_X, GHOST2_START_Y, Color.PINK, this),
+                new Ghost(GHOST3_START_X, GHOST3_START_Y, Color.CYAN, this) };
         powerUp = new PowerUp(this);
         timer = new Timer(40, this);
         timer.start();
         addKeyListener(new PacmanKeyAdapter());
     }
-    
+
     private void loadLevel(int level) {
         if (level < 0 || level >= LEVELS.length) {
             level = 0;
@@ -123,16 +114,16 @@ public class Board extends JPanel implements ActionListener {
             }
         }
     }
-    
+
     public int getSpriteSize() {
         return SPRITE_SIZE;
     }
-    
+
     public boolean isWall(int x, int y) {
         // Apply wrapping before checking wall collision
         x = wrapX(x);
         y = wrapY(y);
-        
+
         int col = x / BLOCK_SIZE;
         int row = y / BLOCK_SIZE;
         if (row < 0 || row >= BOARD_HEIGHT || col < 0 || col >= BOARD_WIDTH) {
@@ -140,7 +131,7 @@ public class Board extends JPanel implements ActionListener {
         }
         return levelData[row][col] == 0;
     }
-    
+
     public int wrapX(int x) {
         int boardPixelWidth = BOARD_WIDTH * BLOCK_SIZE;
         if (x < 0) {
@@ -150,7 +141,7 @@ public class Board extends JPanel implements ActionListener {
         }
         return x;
     }
-    
+
     public int wrapY(int y) {
         int boardPixelHeight = BOARD_HEIGHT * BLOCK_SIZE;
         if (y < 0) {
@@ -160,7 +151,7 @@ public class Board extends JPanel implements ActionListener {
         }
         return y;
     }
-    
+
     public void eatPoint(int x, int y) {
         int col = x / BLOCK_SIZE;
         int row = y / BLOCK_SIZE;
@@ -172,7 +163,7 @@ public class Board extends JPanel implements ActionListener {
             }
         }
     }
-    
+
     private void checkLevelComplete() {
         for (int i = 0; i < BOARD_HEIGHT; i++) {
             for (int j = 0; j < BOARD_WIDTH; j++) {
@@ -200,7 +191,7 @@ public class Board extends JPanel implements ActionListener {
         for (Ghost ghost : ghosts) {
             ghost.draw(g);
         }
-        
+
         if (gameOver) {
             drawGameOver(g);
         }
@@ -221,17 +212,17 @@ public class Board extends JPanel implements ActionListener {
                 }
             }
         }
-        
+
         // Dibujar información
         g.setColor(Color.YELLOW);
         g.drawString("Score: " + pacman.getScore(), 10, 410);
         g.drawString("Level: " + (currentLevel + 1), 150, 410);
     }
-    
+
     private void drawGameOver(Graphics g) {
         g.setColor(new Color(0, 0, 0, 180));
         g.fillRect(0, 0, getWidth(), getHeight());
-        
+
         g.setColor(Color.RED);
         g.setFont(new Font("Arial", Font.BOLD, 48));
         FontMetrics fm = g.getFontMetrics();
@@ -239,7 +230,7 @@ public class Board extends JPanel implements ActionListener {
         int x = (getWidth() - fm.stringWidth(gameOverText)) / 2;
         int y = getHeight() / 2 - 20;
         g.drawString(gameOverText, x, y);
-        
+
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.PLAIN, 20));
         fm = g.getFontMetrics();
@@ -261,39 +252,37 @@ public class Board extends JPanel implements ActionListener {
         }
         repaint();
     }
-    
+
     private void checkCollisions() {
         int pacmanX = pacman.getX();
         int pacmanY = pacman.getY();
         int pacmanSize = pacman.getSpriteSize();
-        
+
         // Don't check collision if pacman is powered up
         if (pacman.isPowered()) {
             return;
         }
-        
+
         for (Ghost ghost : ghosts) {
             int ghostX = ghost.getX();
             int ghostY = ghost.getY();
             int ghostSize = ghost.getSpriteSize();
-            
+
             // Detectar colisión usando rectángulos
-            if (pacmanX < ghostX + ghostSize &&
-                pacmanX + pacmanSize > ghostX &&
-                pacmanY < ghostY + ghostSize &&
-                pacmanY + pacmanSize > ghostY) {
+            if (pacmanX < ghostX + ghostSize && pacmanX + pacmanSize > ghostX && pacmanY < ghostY + ghostSize
+                    && pacmanY + pacmanSize > ghostY) {
                 gameOver = true;
                 break;
             }
         }
     }
-    
+
     private void checkPowerUpCollision() {
         if (powerUp.checkCollision(pacman.getX(), pacman.getY(), pacman.getSpriteSize())) {
             pacman.activatePowerUp();
         }
     }
-    
+
     private void restartGame() {
         gameOver = false;
         currentLevel = 0;
