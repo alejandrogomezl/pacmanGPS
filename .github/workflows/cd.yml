@@ -1,0 +1,247 @@
+name: CD - Deploy to GitHub Pages
+
+on:
+  workflow_run:
+    workflows: ["ci-ct"]
+    types:
+      - completed
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build JAR
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pacman-jar
+          path: target/*.jar
+          retention-days: 90
+
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4.1.3
+        with:
+          name: pacman-jar
+          path: ./jar
+
+      - name: Create landing page
+        run: |
+          mkdir -p ./public
+
+          # Get JAR file name
+          JAR_FILE=$(find ./jar -name '*.jar' -type f | head -1)
+          if [ -z "$JAR_FILE" ]; then
+            echo "Error: No JAR file found in ./jar directory"
+            exit 1
+          fi
+          JAR_NAME=$(basename "$JAR_FILE")
+
+          # Copy JAR to public directory
+          cp "$JAR_FILE" ./public/
+
+          # Create HTML landing page
+          cat > ./public/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="es">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>PacMan GPS - Descarga</title>
+              <style>
+                  * {
+                      margin: 0;
+                      padding: 0;
+                      box-sizing: border-box;
+                  }
+
+                  body {
+                      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                      min-height: 100vh;
+                      display: flex;
+                      justify-content: center;
+                      align-items: center;
+                      padding: 20px;
+                  }
+
+                  .container {
+                      background: white;
+                      border-radius: 20px;
+                      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                      max-width: 600px;
+                      width: 100%;
+                      padding: 40px;
+                      text-align: center;
+                  }
+
+                  h1 {
+                      color: #333;
+                      font-size: 2.5em;
+                      margin-bottom: 10px;
+                  }
+
+                  .game-icon {
+                      font-size: 4em;
+                      margin: 20px 0;
+                  }
+
+                  p {
+                      color: #666;
+                      font-size: 1.1em;
+                      margin-bottom: 30px;
+                      line-height: 1.6;
+                  }
+
+                  .download-btn {
+                      display: inline-block;
+                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                      color: white;
+                      text-decoration: none;
+                      padding: 15px 40px;
+                      border-radius: 50px;
+                      font-size: 1.2em;
+                      font-weight: bold;
+                      transition: transform 0.3s ease, box-shadow 0.3s ease;
+                      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                  }
+
+                  .download-btn:hover {
+                      transform: translateY(-2px);
+                      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+                  }
+
+                  .requirements {
+                      margin-top: 40px;
+                      padding: 20px;
+                      background: #f8f9fa;
+                      border-radius: 10px;
+                      text-align: left;
+                  }
+
+                  .requirements h2 {
+                      color: #333;
+                      font-size: 1.3em;
+                      margin-bottom: 15px;
+                  }
+
+                  .requirements ul {
+                      list-style-position: inside;
+                      color: #666;
+                  }
+
+                  .requirements li {
+                      margin: 8px 0;
+                  }
+
+                  .run-command {
+                      margin-top: 20px;
+                      padding: 15px;
+                      background: #e9ecef;
+                      border-radius: 5px;
+                      font-family: 'Courier New', monospace;
+                      color: #333;
+                      text-align: left;
+                  }
+
+                  .footer {
+                      margin-top: 30px;
+                      color: #999;
+                      font-size: 0.9em;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <div class="game-icon">🎮</div>
+                  <h1>PacMan GPS</h1>
+                  <p>¡Juego básico de Pac-Man desarrollado en Java! Disfruta de la clásica experiencia de Pac-Man con gráficos Swing.</p>
+
+          EOF
+
+          # Add dynamic JAR download link
+          echo "        <a href=\"$JAR_NAME\" class=\"download-btn\" download>📥 Descargar JAR</a>" >> ./public/index.html
+
+          cat >> ./public/index.html << 'EOF'
+
+                  <div class="requirements">
+                      <h2>📋 Requisitos</h2>
+                      <ul>
+                          <li>Java 17 o superior instalado</li>
+                          <li>Sistema operativo: Windows, macOS o Linux</li>
+                      </ul>
+
+                      <h2 style="margin-top: 20px;">🚀 Cómo ejecutar</h2>
+                      <div class="run-command">
+          EOF
+
+          # Add dynamic run command
+          echo "                java -jar $JAR_NAME" >> ./public/index.html
+
+          cat >> ./public/index.html << 'EOF'
+                      </div>
+                  </div>
+
+                  <div class="footer">
+                      <p>Desarrollado con ❤️ | PacMan GPS Project</p>
+                  </div>
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './public'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Display deployment URL
+        run: |
+          echo "🚀 Deployment successful!"
+          echo "📄 Landing page URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "The JAR file is now available for download at the landing page."
