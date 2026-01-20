@@ -69,6 +69,10 @@ jobs:
 
           # Get JAR file name
           JAR_FILE=$(find ./jar -name '*.jar' -type f | head -1)
+          if [ -z "$JAR_FILE" ]; then
+            echo "Error: No JAR file found in ./jar directory"
+            exit 1
+          fi
           JAR_NAME=$(basename "$JAR_FILE")
 
           # Copy JAR to public directory
