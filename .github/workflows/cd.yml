@@ -68,7 +68,7 @@ jobs:
           mkdir -p ./public
 
           # Get JAR file name
-          JAR_FILE=$(ls ./jar/*.jar | head -1)
+          JAR_FILE=$(find ./jar -name '*.jar' -type f | head -1)
           JAR_NAME=$(basename "$JAR_FILE")
 
           # Copy JAR to public directory
@@ -201,7 +201,7 @@ jobs:
                   <div class="requirements">
                       <h2>📋 Requisitos</h2>
                       <ul>
-                          <li>Java 8 o superior instalado</li>
+                          <li>Java 17 o superior instalado</li>
                           <li>Sistema operativo: Windows, macOS o Linux</li>
                       </ul>
 
