@@ -38,10 +38,9 @@ class PowerUpTest {
     @Test
     void testCheckCollisionWhenNotActive() {
         when(mockBoard.isWall(anyInt(), anyInt())).thenReturn(true);
-        PowerUp powerUp = new PowerUp(mockBoard);
         // Force powerUp to be inactive by setting isWall to always return true
         // This prevents spawn from setting active to true
-        powerUp = new PowerUp(mockBoard);
+        PowerUp powerUp = new PowerUp(mockBoard);
 
         // Use reflection to set active to false
         try {
